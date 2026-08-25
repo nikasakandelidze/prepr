@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# prepr — publish a plan as a draft PR, review comments, close it out.
+#
+# Subcommands:
+#   open   <plan-file> [--title T] [--base B] [--reviewer U] [--label L]
+#   review [PR] [--ack ID[,ID...]] [--reset] [--json]
+#   close  [PR] [--keep-branch] [--yes]
+#   status
+#
+# Requires: git, gh (authenticated), jq.
+
+set -euo pipefail
+
+SELF="${BASH_SOURCE[0]}"
+while [ -h "$SELF" ]; do
+  DIR="$(cd -P "$(dirname "$SELF")" && pwd)"
+  SELF="$(readlink "$SELF")"
+  [[ $SELF != /* ]] && SELF="$DIR/$SELF"
+done
+PKG_ROOT="$(cd -P "$(dirname "$SELF")/.." && pwd)"
+
+# shellcheck source=../lib/prepr.sh
+. "$PKG_ROOT/lib/prepr.sh"
+
+cmd="${1:-}"
+[ -n "$cmd" ] || { prepr_usage; exit 2; }
+shift || true
+
+case "$cmd" in
+  open)    prepr_open   "$@" ;;
+  review)  prepr_review "$@" ;;
+  close)   prepr_close  "$@" ;;
+  status)  prepr_status "$@" ;;
+  -h|--help|help) prepr_usage ;;
+  # Aliases: accept the intuitive verbs too, so agents that type them still work.
+  publish)  prepr_open   "$@" ;;
+  feedback) prepr_review "$@" ;;
+  resolve)  prepr_close  "$@" ;;
+  *) echo "prepr: unknown subcommand: $cmd" >&2; prepr_usage; exit 2 ;;
+esac

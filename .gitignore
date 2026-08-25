@@ -1,0 +1,12 @@
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+
+# Local state written by the CLI when developers dogfood in this repo.
+.prepr/
+
+# Editor
+.idea/
+.vscode/

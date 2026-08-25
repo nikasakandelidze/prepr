@@ -1,0 +1,52 @@
+{
+  "name": "prepr",
+  "version": "0.1.0",
+  "description": "Agent-agnostic skills (Claude Code, Codex, …) that publish planning docs as draft GitHub PRs, collect review, and close them out. Wraps gh + git so it's fast. \"Pre-PR\" — the review that happens before the code PR.",
+  "keywords": [
+    "claude-code",
+    "claude-code-skill",
+    "codex",
+    "agent-skill",
+    "planning",
+    "code-review",
+    "gh",
+    "github",
+    "pull-request",
+    "rfc",
+    "design-review"
+  ],
+  "license": "MIT",
+  "author": "Nika Sakandelidze <nikasakana@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikasakandelidze/prepr.git"
+  },
+  "homepage": "https://github.com/nikasakandelidze/prepr",
+  "bugs": {
+    "url": "https://github.com/nikasakandelidze/prepr/issues"
+  },
+  "bin": {
+    "prepr": "bin/prepr",
+    "prepr-install": "bin/prepr-install.js"
+  },
+  "scripts": {
+    "install-skills": "node bin/prepr-install.js",
+    "install-skills:project": "node bin/prepr-install.js --project"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "skills/",
+    "examples/",
+    "docs/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ]
+}
