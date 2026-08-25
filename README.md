@@ -31,31 +31,34 @@ Modern code review has shifted upstream: reviewing the **plan** matters more tha
 
 ## Install
 
-### Option A — via npm (recommended once published)
+`prepr` is distributed via GitHub — no npm registry required.
+
+### Option A — install with npm (from GitHub)
+
+npm can install directly from git, using the `bin` entries in `package.json`. This is the shortest path if Node is already on your machine:
 
 ```bash
-# Global install (adds `prepr` to your PATH):
-npm install -g prepr
+# Latest main:
+npm install -g github:nikasakandelidze/prepr
 
-# Then wire up the Claude Code skills:
+# Or pinned to a release tag:
+npm install -g github:nikasakandelidze/prepr#v0.1.0
+
+# Wire up the Claude Code skills:
 prepr-install              # → ~/.claude/skills/prepr-*
 # or, per-repo:
 prepr-install --project    # → ./.claude/skills/prepr-*
 ```
 
-You can also run it without a global install:
+### Option B — clone the repo (no Node needed)
 
 ```bash
-npx prepr open PLAN.md
-```
-
-### Option B — clone the repo
-
-```bash
-git clone https://github.com/<you>/prepr.git ~/tools/prepr
+git clone --depth 1 --branch v0.1.0 https://github.com/nikasakandelidze/prepr.git ~/tools/prepr
 export PATH="$HOME/tools/prepr/bin:$PATH"       # add to your shell rc
 node ~/tools/prepr/bin/prepr-install.js         # installs skills to ~/.claude/skills
 ```
+
+`bin/prepr` itself is bash — no build step, no runtime dependency on Node. The installer script (`prepr-install.js`) is the only piece that needs Node, and only when you choose to run it.
 
 ### Option C — Codex / other agents
 
@@ -144,14 +147,14 @@ prepr close --yes
 
 ---
 
-## Publishing this package
+## Publishing your own fork
 
-If you're forking this repo to publish your own version, see [`docs/publishing.md`](docs/publishing.md) for the full checklist. TL;DR:
+If you're forking this repo to ship your own version, see [`docs/publishing.md`](docs/publishing.md) for the full checklist. TL;DR:
 
 1. Set `name`, `author`, and `repository.url` in `package.json`.
 2. `git init && git remote add origin git@github.com:<you>/prepr.git && git push -u origin main`
-3. `npm login` and `npm publish` (or `npm publish --access public` if you use a scoped name).
-4. Tag a release: `git tag v0.1.0 && git push --tags`.
+3. Tag a release: `git tag v0.1.0 && git push --tags && gh release create v0.1.0 --generate-notes`
+4. (Optional) `npm publish` if you also want to appear on the npm registry.
 
 ---
 

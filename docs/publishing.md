@@ -1,6 +1,8 @@
 # Publishing prepr
 
-Checklist for open-sourcing your fork of `prepr` on GitHub and (optionally) npm.
+`prepr` is distributed **from GitHub** (tags → releases). Publishing to the npm registry is optional — users install with `npm install github:<you>/prepr#<tag>` either way.
+
+Checklist for open-sourcing your fork.
 
 ## 1. Fill in your identity
 
@@ -8,22 +10,16 @@ Edit `package.json`:
 
 ```jsonc
 {
-  "name": "prepr",                        // or "@yourscope/prepr"
+  "name": "prepr",
   "author": "Your Name <you@example.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/<you>/prepr.git"
-  }
+  },
+  "homepage": "https://github.com/<you>/prepr",
+  "bugs": { "url": "https://github.com/<you>/prepr/issues" }
 }
 ```
-
-If you use a scoped name (`@yourscope/prepr`), you'll need `--access public` when you publish, since scoped packages default to private.
-
-If the bare `prepr` name is already taken on npm (check with `npm view prepr` — if it errors with 404, it's free), scope it. Suggested scoped fallbacks:
-
-- `@nikasakana/prepr`
-- `@<your-github-user>/prepr`
-- `prepr-cli`  (unscoped alternative)
 
 Also drop your copyright line in `LICENSE`.
 
@@ -31,47 +27,74 @@ Also drop your copyright line in `LICENSE`.
 
 ```bash
 cd /path/to/prepr
-git init
+git init -b main
 git add .
 git commit -m "chore: initial commit"
-git branch -M main
 git remote add origin git@github.com:<you>/prepr.git
 git push -u origin main
 ```
 
-Recommended: add repo **topics** like `claude-code-skill`, `codex`, `agent-skill`, and `pull-request` so it's discoverable.
-
-## 3. Publish to npm
+Add repo **topics** so it's discoverable:
 
 ```bash
-npm login              # if you haven't already
-npm publish            # for an unscoped name
-# or
-npm publish --access public   # for @yourscope/prepr
+gh repo edit <you>/prepr --add-topic claude-code-skill,codex,agent-skill,pull-request,planning
 ```
 
-Verify it installs cleanly in an empty directory:
+## 3. Cut a release
+
+The tag is your version boundary. Users install by tag; the Releases page becomes the changelog.
 
 ```bash
-cd $(mktemp -d)
-npm install -g prepr             # or your scoped name
-prepr --help
-prepr-install                    # → ~/.claude/skills/prepr-*
-```
-
-## 4. Tag a release
-
-```bash
+# Bump version in package.json first (already 0.1.0 for the first release).
 git tag v0.1.0
 git push --tags
 gh release create v0.1.0 --generate-notes
 ```
 
-## 5. Optional: distribute as a Claude Code plugin
+Verify a clean install works end-to-end:
 
-Claude Code plugins live in `~/.claude/plugins/`. To distribute this package as a plugin instead of / in addition to raw skills, add a `plugin.json` at the repo root that points at `skills/`. See the Claude Code docs for the current schema; the SKILL.md files as-written should work under any plugin wrapper because they're standard `name` + `description` frontmatter.
+```bash
+cd $(mktemp -d)
+npm install -g github:<you>/prepr#v0.1.0
+prepr --help
+prepr-install                    # → ~/.claude/skills/prepr-*
+```
 
-## 6. Ongoing maintenance
+## 4. Later releases
 
-- Bump `version` in `package.json`, tag, `npm publish`.
-- Because the CLI is bash and depends only on `gh`/`git`/`jq`, there is essentially no dependency tree to keep patched — CI can be minimal (a shellcheck run on `lib/prepr.sh` is plenty).
+For each new version:
+
+```bash
+# 1. Bump "version" in package.json (semver).
+# 2. Commit the bump:
+git commit -am "release: v0.2.0"
+git push
+# 3. Tag and release:
+git tag v0.2.0
+git push --tags
+gh release create v0.2.0 --generate-notes
+```
+
+`--generate-notes` scans commits since the previous tag and drafts a Markdown changelog for you. Edit it in the browser after if you want.
+
+## 5. Optional: publish to the npm registry too
+
+Only worth it if you want people to type `npm i prepr` without knowing your GitHub handle.
+
+```bash
+npm login
+# If the bare name is taken (check with `npm view prepr`), scope it:
+#   "name": "@yourscope/prepr"  → then:
+npm publish --access public
+# Unscoped:
+npm publish
+```
+
+## 6. Optional: distribute as a Claude Code plugin
+
+Claude Code plugins live in `~/.claude/plugins/`. To ship this as a plugin instead of / in addition to raw skills, add a `plugin.json` at the repo root pointing at `skills/`. The SKILL.md files as-written are standard `name` + `description` frontmatter and work under any plugin wrapper.
+
+## Ongoing maintenance
+
+- Because the CLI is bash + `gh` + `git` + `jq`, there's essentially no dependency tree to keep patched.
+- Recommended CI (minimal): `shellcheck lib/prepr.sh bin/prepr` on every push.
